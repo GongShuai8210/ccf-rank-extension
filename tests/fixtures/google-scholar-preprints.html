@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google Scholar preprint resolution fixture</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #fff; color: #707070; font-family: Arial, sans-serif; }
+      main { width: min(1220px, calc(100vw - 32px)); margin: 22px auto; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      tr { border-bottom: 1px solid #eee; }
+      .gsc_a_t { padding: 20px 16px 21px 0; vertical-align: top; }
+      .gsc_a_at { color: #1515b8; font-size: 22px; line-height: 1.3; text-decoration: none; }
+      .gs_gray { margin-top: 5px; color: #707070; font-size: 17px; line-height: 1.3; }
+      .gsc_a_y { width: 70px; padding: 25px 0; color: #1515b8; font-size: 18px; text-align: right; vertical-align: top; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <table aria-label="Preprint publications">
+        <tbody id="gsc_a_b">
+          <tr class="gsc_a_tr" id="clustered-preprint">
+            <td class="gsc_a_t">
+              <a class="gsc_a_at" href="/citations?view_op=view_citation&amp;hl=zh-CN&amp;user=atohSZ8AAAAJ&amp;citation_for_view=atohSZ8AAAAJ:yD5IFk8b50cC">Adversarial Topic-aware Prompt-tuning for Cross-topic Automated Essay Scoring</a>
+              <div class="gs_gray">C Zhang, H Zhao, C Cui, Q Song, Z Lu, S Gong, K Liu</div>
+              <div class="gs_gray">arXiv preprint arXiv:2508.05987, 2025</div>
+            </td>
+            <td class="gsc_a_y">2025</td>
+          </tr>
+          <tr class="gsc_a_tr" id="true-preprint">
+            <td class="gsc_a_t">
+              <a class="gsc_a_at" href="/citations?view_op=view_citation&amp;hl=zh-CN&amp;user=fixture&amp;citation_for_view=fixture:preprint">A paper available only as a preprint</a>
+              <div class="gs_gray">A Author, B Author</div>
+              <div class="gs_gray">arXiv preprint arXiv:2601.00001, 2026</div>
+            </td>
+            <td class="gsc_a_y">2026</td>
+          </tr>
+          <tr class="gsc_a_tr" id="published-unranked">
+            <td class="gsc_a_t">
+              <a class="gsc_a_at" href="/citations?view_op=view_citation&amp;hl=zh-CN&amp;user=fixture&amp;citation_for_view=fixture:unranked">A preprint later published outside the CCF list</a>
+              <div class="gs_gray">A Author, C Author</div>
+              <div class="gs_gray">arXiv preprint arXiv:2601.00002, 2026</div>
+            </td>
+            <td class="gsc_a_y">2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

@@ -1,8 +1,8 @@
 {
   "extName": {
-    "message": "CCF Rank 2026"
+    "message": "CCF Rank PLus"
   },
   "extDescription": {
-    "message": "查询并在学术搜索页面标注 CCF 第七版（2026）会议与期刊等级，全部数据在本地处理。"
+    "message": "查询并标注 CCF 第七版（2026）会议与期刊等级；支持识别 Google 学术预印本的正式发表版本。"
   }
 }

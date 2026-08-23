@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extName__",
   "description": "__MSG_extDescription__",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage_url": "https://github.com/GongShuai8210/ccf-rank-extension",
   "default_locale": "zh_CN",
   "icons": {
@@ -13,7 +13,7 @@
     "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "CCF Rank 2026",
+    "default_title": "CCF Rank PLus",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",
@@ -61,6 +61,7 @@
       "js": [
         "data/ccf-2026.js",
         "shared/search.js",
+        "shared/scholar.js",
         "content/content.js"
       ],
       "run_at": "document_idle"
@@ -71,7 +72,7 @@
       "id": "ccf-rank-2026@open-source.local",
       "strict_min_version": "142.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": ["browsingActivity"]
       }
     }
   }

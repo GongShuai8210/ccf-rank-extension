@@ -47,6 +47,16 @@ a.ccfrank2026-badge {
   background: #84b832 !important;
 }
 
+.ccfrank2026-badge--preprint {
+  min-width: 68px;
+  background: #667085 !important;
+  color: #fff !important;
+}
+
+.ccfrank2026-badge--preprint[aria-busy="true"] {
+  background: #7b8495 !important;
+}
+
 /* Google Scholar profile rows keep the venue in .gs_gray and the title as an
    inline link. This preserves Scholar's wrapping while placing the pill at the
    visual end of the title, matching search-result and profile layouts. */

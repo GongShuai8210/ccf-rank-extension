@@ -1,14 +1,18 @@
-# CCF Rank 2026
+# CCF Rank PLus
 
 [English](README.en.md) · [更新记录](CHANGELOG.md) · [隐私说明](PRIVACY.md) · [参与贡献](CONTRIBUTING.md)
 
-一个面向 Chrome 和 Firefox 的开源浏览器扩展，用于查询并自动标注《中国计算机学会推荐国际学术会议和期刊目录（第七版，2026）》中的 CCF 等级。
+CCF Rank PLus 是一个面向 Chrome 和 Firefox 的开源浏览器扩展，用于查询并自动标注《中国计算机学会推荐国际学术会议和期刊目录（第七版，2026）》中的 CCF 等级。
 
-![CCF Rank 2026 查询界面](docs/images/popup.png)
+![CCF Rank PLus 查询界面](docs/images/popup.png)
 
 Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接显示等级：
 
 ![Google Scholar 个人主页自动标注](docs/images/google-scholar-profile.png)
+
+即使 Google Scholar 当前只显示 arXiv，扩展也会按需检查论文的“所有版本”。如果其中存在正式发表于 CCF 会议或期刊的版本，就显示对应等级；确认只有预印本时显示灰色 `Preprint`：
+
+![Google Scholar 预印本与正式发表版本识别](docs/images/preprint-resolution.png)
 
 ## 为什么重新实现
 
@@ -28,7 +32,9 @@ Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接�
 - 在工具栏弹窗中按简称、完整英文名或曾用名查询；
 - 按 A/B/C、会议/期刊和学科分类筛选；
 - 在学术搜索结果和 Google Scholar 个人主页论文列表中，把彩色 `CCF A/B/C` 标记直接显示在标题末尾；
-- DBLP 优先使用 URL 路径精确匹配，其余站点使用本地名称索引和保守的多策略匹配；
+- 对 Google Scholar 中显示为 arXiv 等预印本的可见论文，按需检查“所有版本”：找到正式 CCF 版本时显示等级，只有预印本时显示 `Preprint`，找到正式但未收录于 CCF 的版本时不显示标签；
+- DBLP 及其常用镜像已支持：优先使用会议/期刊 URL 路径精确匹配，再以页面来源文本回退；
+- 预印本版本检查限制为最多 2 个并发请求并使用页面级内存缓存，不批量扫描视口外的论文；
 - MutationObserver 支持无限滚动和单页应用动态加载；
 - 中英文界面随浏览器语言切换；
 - 不使用后台服务器、远程代码、统计分析或广告；
@@ -39,7 +45,7 @@ Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接�
 | 网站 | 自动标注 | 匹配方式 |
 | --- | --- | --- |
 | DBLP 及常用镜像 | 是 | DBLP 路径精确匹配，文本回退 |
-| Google Scholar 搜索结果与个人主页 | 是 | 来源字段本地匹配，标签紧跟论文标题 |
+| Google Scholar 搜索结果与个人主页 | 是 | 来源字段本地匹配；预印本按需检查 Scholar“所有版本” |
 | Semantic Scholar | 是 | 会议/期刊元数据本地匹配 |
 | Connected Papers | 是 | 动态结果卡片本地匹配 |
 | Web of Science（含中国域名） | 是 | 来源字段本地匹配 |
@@ -72,7 +78,7 @@ npm run check
 
 - Chrome：`dist/chrome/`
 - Firefox：`dist/firefox/`
-- 发布包：`artifacts/ccf-rank-1.1.0-{chrome,firefox}.zip`
+- 发布包：`artifacts/ccf-rank-1.2.0-{chrome,firefox}.zip`
 
 ## 更新 CCF 数据
 
@@ -107,7 +113,9 @@ docs/                  截图和数据维护文档
 
 ## 隐私与权限
 
-扩展只在 manifest 明确列出的学术网站读取页面中已显示的会议/期刊文本，并在当前页面添加等级标签。匹配在本地完成，不会上传检索词、页面内容、浏览历史或任何个人信息，也不申请 `storage`、`tabs`、`cookies` 等额外权限。详见 [PRIVACY.md](PRIVACY.md)。
+扩展只在 manifest 明确列出的学术网站读取页面中已显示的会议/期刊文本，并在当前页面添加等级标签。CCF 数据与等级匹配全部在本地完成，不使用后台、统计分析或广告，也不申请 `storage`、`tabs`、`cookies` 等额外权限。
+
+唯一的自动网络读取是 Google Scholar 预印本版本检查：扩展针对可见的预印本条目，向当前 Scholar 域名公开读取论文详情页和“所有版本”页；请求不携带浏览器凭据，不会发往本项目或第三方排名服务。Firefox 按其数据分类规则将这类 URL 请求披露为 `browsingActivity`；本项目不会接收任何浏览活动。完整边界与普通网络元数据说明见 [PRIVACY.md](PRIVACY.md)。
 
 ## 开发与验证
 
@@ -118,7 +126,7 @@ npm run lint:firefox # Mozilla 官方 web-ext 严格校验
 npm run check        # 完整校验、构建和打包
 ```
 
-当前版本已在 Google Chrome 151 和 Firefox 154 上完成实际加载测试。CI 会在每次 push/PR 时执行相同校验并上传 Chrome/Firefox 构建产物。
+当前版本已在 Google Chrome 151 和 Firefox 154 上完成实际加载测试，并用浏览器级回归用例验证了“arXiv → ECAI → CCF B”、真实预印本与正式非 CCF 版本三种情况。CI 会在每次 push/PR 时执行数据、单元测试、Mozilla lint、构建与打包校验。
 
 ## 许可证与声明
 

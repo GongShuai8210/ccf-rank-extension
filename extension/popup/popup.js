@@ -20,7 +20,7 @@
         total: (count) => `${count} 条会议与期刊`,
         matches: (count) => `${count} 条匹配结果`,
         clear: "清空",
-        privacy: "不收集数据 · 全程本地匹配",
+        privacy: "CCF 数据本地匹配 · 无跟踪",
         source: "数据来源",
         welcomeTitle: "查简称，也查完整名称",
         welcomeBody:
@@ -44,7 +44,7 @@
         total: (count) => `${count} conferences and journals`,
         matches: (count) => `${count} matching result${count === 1 ? "" : "s"}`,
         clear: "Clear",
-        privacy: "No collection · matched entirely on device",
+        privacy: "Local CCF matching · no tracking",
         source: "Data source",
         welcomeTitle: "Search abbreviations or full names",
         welcomeBody:

@@ -1,14 +1,18 @@
-# CCF Rank 2026
+# CCF Rank PLus
 
 [中文](README.md) · [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md) · [Contributing](CONTRIBUTING.md)
 
-CCF Rank 2026 is an open-source Chrome and Firefox extension for looking up and annotating ranks from the China Computer Federation's seventh-edition recommended international conference and journal list (2026).
+CCF Rank PLus is an open-source Chrome and Firefox extension for looking up and annotating ranks from the China Computer Federation's seventh-edition recommended international conference and journal list (2026).
 
-![CCF Rank 2026 popup](docs/images/popup.png)
+![CCF Rank PLus popup](docs/images/popup.png)
 
 Google Scholar search results and profile publication tables are annotated directly at the end of each paper title:
 
 ![Google Scholar profile annotations](docs/images/google-scholar-profile.png)
+
+When Google Scholar currently lists a paper only as arXiv, the extension lazily inspects its “All versions” page. A ranked formal publication receives its CCF badge; a paper confirmed to have only preprint versions receives a neutral `Preprint` badge:
+
+![Google Scholar preprint and published-version resolution](docs/images/preprint-resolution.png)
 
 ## Highlights
 
@@ -16,7 +20,10 @@ Google Scholar search results and profile publication tables are annotated direc
 - Search by abbreviation, full English name, or an explicitly documented former name.
 - Filter by CCF A/B/C, venue type, and all ten CCF subject categories.
 - Annotate DBLP, Google Scholar search results and profile publication tables, Semantic Scholar, Connected Papers, Web of Science, ACM DL, IEEE Xplore, and Springer Link.
-- Prefer exact DBLP path matches; use conservative, entirely local text matching elsewhere.
+- Support DBLP and its common mirrors with exact conference/journal path matching plus a metadata-text fallback.
+- For a visible Google Scholar preprint, inspect “All versions” on demand: show its formal CCF rank when found, show `Preprint` if every usable version is a preprint, and show no badge for a formal venue outside the CCF list.
+- Limit Scholar version checks to two concurrent same-origin requests and cache results in page memory; off-screen publications are not scanned in bulk.
+- Use conservative local venue-name matching on all supported sites.
 - Handle dynamically loaded results with a MutationObserver.
 - Share one Manifest V3 WebExtension codebase across Chrome and Firefox.
 - No server, telemetry, advertising, remote code, or persistent browsing data.
@@ -56,7 +63,9 @@ The extractor reads coordinate-bounded table cells, validates every section's ro
 
 ## Privacy and permissions
 
-The extension reads only venue text already displayed on the academic sites named in its manifest and adds a rank badge to the current page. All matching is performed locally. It does not transmit queries, page content, browsing history, or personal information, and requests no storage, tabs, cookies, or analytics permissions. See [PRIVACY.md](PRIVACY.md).
+The extension reads venue text already displayed on the academic sites named in its manifest and adds a rank badge to the current page. The CCF dataset and rank matching remain local; there is no backend, analytics, or advertising, and the extension requests no storage, tabs, or cookies permissions.
+
+The only automatic network reads are limited Google Scholar preprint-version checks. For a visible preprint row, the extension fetches the public citation-detail and “All versions” pages from the Scholar origin already open in the tab, without browser credentials or a referrer. Nothing is sent to this project or a separate ranking service. Firefox discloses these URL requests as `browsingActivity` under Mozilla's data taxonomy; this project receives no browsing activity. See [PRIVACY.md](PRIVACY.md) for the complete boundary and ordinary network-metadata disclosure.
 
 ## Verification
 
@@ -67,7 +76,7 @@ npm run lint:firefox
 npm run check
 ```
 
-The current release has been loaded in Google Chrome 151 and Firefox 154. CI repeats the data, unit, Mozilla lint, build, and packaging checks for every push and pull request.
+The current release has been loaded in Google Chrome 151 and Firefox 154. A browser-level regression covers a supplied arXiv record that resolves through ECAI to CCF B, a true preprint, and a formal non-CCF publication. CI repeats the data, unit, Mozilla lint, build, and packaging checks for every push and pull request.
 
 ## License and disclaimer
 
