@@ -4,15 +4,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
-  height: 22px;
-  margin: 0 7px 2px 0;
-  padding: 0 8px;
-  border: 1px solid rgb(255 255 255 / 28%);
+  min-width: 52px;
+  height: 23px;
+  margin: 0 0 2px 8px;
+  padding: 0 9px;
+  border: 1px solid rgb(255 255 255 / 24%);
   border-radius: 999px;
-  box-shadow: 0 1px 2px rgb(16 24 40 / 20%);
+  box-shadow: 0 1px 2px rgb(16 24 40 / 16%);
   color: #fff !important;
-  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+  font: 700 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
     sans-serif !important;
   letter-spacing: 0.02em;
   text-decoration: none !important;
@@ -36,13 +36,22 @@ a.ccfrank2026-badge {
 }
 
 .ccfrank2026-badge--a {
-  background: #c43227 !important;
+  background: #e4572e !important;
 }
 
 .ccfrank2026-badge--b {
-  background: #c76a09 !important;
+  background: #f2b632 !important;
 }
 
 .ccfrank2026-badge--c {
-  background: #087a4d !important;
+  background: #84b832 !important;
+}
+
+/* Google Scholar profile rows keep the venue in .gs_gray and the title as an
+   inline link. This preserves Scholar's wrapping while placing the pill at the
+   visual end of the title, matching search-result and profile layouts. */
+.gsc_a_t > .ccfrank2026-badge--google-scholar,
+.gs_rt > .ccfrank2026-badge--google-scholar {
+  position: relative;
+  top: -1px;
 }

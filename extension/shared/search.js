@@ -298,6 +298,19 @@
     return Boolean(phrase) && paddedText.includes(` ${phrase} `);
   }
 
+  function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function containsPrintedAbbreviation(text, abbreviation) {
+    const value = asString(abbreviation).trim();
+    if (!value) return false;
+    const pattern = escapeRegExp(value).replace(/\s+/g, "\\s+");
+    return new RegExp(
+      `(?:^|[^A-Za-z0-9+#])${pattern}(?=$|[^A-Za-z0-9+#])`,
+    ).test(asString(text));
+  }
+
   function tokenCoverage(itemTokens, textTokenSet) {
     if (!itemTokens.length) return 0;
     let matched = 0;
@@ -309,7 +322,13 @@
 
   function exactPhraseScore(phrase, phraseTokens, contextText) {
     const ratio = Math.min(1, phrase.length / Math.max(1, contextText.length));
-    if (phraseTokens.length >= 3) return 0.96 + ratio * 0.04;
+    const phraseWordCount = tokens(phrase).length;
+    if (
+      phraseTokens.length >= 3 ||
+      (phraseTokens.length >= 2 && phraseWordCount >= 4)
+    ) {
+      return 0.96 + ratio * 0.04;
+    }
     return 0.8 + ratio * 0.1;
   }
 
@@ -321,7 +340,7 @@
   }
 
   function scoreVenueText(index, item, context) {
-    const { textNorm, paddedText, textTokens } = context;
+    const { rawText, textNorm, paddedText, textTokens } = context;
     let score = 0;
     let reason = "";
 
@@ -342,10 +361,11 @@
     const abbrLength = rawCompact(item.venue.abbr).length;
     const abbrPresent =
       abbrLength >= 3 &&
-      (containsPhrase(paddedText, item.abbrNorm) ||
+      (containsPrintedAbbreviation(rawText, item.venue.abbr) ||
         item.aliases.some(
           (alias) =>
-            alias.original.length <= 16 && containsPhrase(paddedText, alias.norm),
+            alias.original.length <= 16 &&
+            containsPrintedAbbreviation(rawText, alias.original),
         ));
     if (abbrPresent) {
       const uniqueAbbreviation = abbreviationUnique(index, item);
@@ -377,9 +397,11 @@
   }
 
   function matchVenueText(index, text) {
-    const textNorm = normalize(text);
+    const rawText = asString(text);
+    const textNorm = normalize(rawText);
     if (!textNorm) return null;
     const context = {
+      rawText,
       textNorm,
       paddedText: ` ${textNorm} `,
       textTokens: new Set(significantTokens(textNorm)),

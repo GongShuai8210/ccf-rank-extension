@@ -1,10 +1,14 @@
 # CCF Rank 2026
 
-[English](README.en.md) · [隐私说明](PRIVACY.md) · [参与贡献](CONTRIBUTING.md)
+[English](README.en.md) · [更新记录](CHANGELOG.md) · [隐私说明](PRIVACY.md) · [参与贡献](CONTRIBUTING.md)
 
 一个面向 Chrome 和 Firefox 的开源浏览器扩展，用于查询并自动标注《中国计算机学会推荐国际学术会议和期刊目录（第七版，2026）》中的 CCF 等级。
 
 ![CCF Rank 2026 查询界面](docs/images/popup.png)
+
+Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接显示等级：
+
+![Google Scholar 个人主页自动标注](docs/images/google-scholar-profile.png)
 
 ## 为什么重新实现
 
@@ -23,7 +27,7 @@
 
 - 在工具栏弹窗中按简称、完整英文名或曾用名查询；
 - 按 A/B/C、会议/期刊和学科分类筛选；
-- 在学术搜索结果旁显示彩色 `CCF A/B/C` 标记；
+- 在学术搜索结果和 Google Scholar 个人主页论文列表中，把彩色 `CCF A/B/C` 标记直接显示在标题末尾；
 - DBLP 优先使用 URL 路径精确匹配，其余站点使用本地名称索引和保守的多策略匹配；
 - MutationObserver 支持无限滚动和单页应用动态加载；
 - 中英文界面随浏览器语言切换；
@@ -35,7 +39,7 @@
 | 网站 | 自动标注 | 匹配方式 |
 | --- | --- | --- |
 | DBLP 及常用镜像 | 是 | DBLP 路径精确匹配，文本回退 |
-| Google Scholar 常用区域域名 | 是 | 来源字段本地匹配 |
+| Google Scholar 搜索结果与个人主页 | 是 | 来源字段本地匹配，标签紧跟论文标题 |
 | Semantic Scholar | 是 | 会议/期刊元数据本地匹配 |
 | Connected Papers | 是 | 动态结果卡片本地匹配 |
 | Web of Science（含中国域名） | 是 | 来源字段本地匹配 |
@@ -68,7 +72,7 @@ npm run check
 
 - Chrome：`dist/chrome/`
 - Firefox：`dist/firefox/`
-- 发布包：`artifacts/ccf-rank-1.0.0-{chrome,firefox}.zip`
+- 发布包：`artifacts/ccf-rank-1.1.0-{chrome,firefox}.zip`
 
 ## 更新 CCF 数据
 

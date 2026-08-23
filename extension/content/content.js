@@ -21,9 +21,9 @@
     {
       id: "google-scholar",
       host: /^scholar\.google\./i,
-      cards: [".gs_r", ".gs_scl"],
-      metadata: [".gs_a"],
-      anchors: [".gs_rt", "h3"],
+      cards: ["tr.gsc_a_tr", ".gs_r", ".gs_scl"],
+      metadata: [".gsc_a_t .gs_gray", ".gs_a"],
+      anchors: ["a.gsc_a_at", ".gs_rt", "h3"],
       fallbackText: false,
     },
     {
@@ -182,7 +182,11 @@
 
   function createBadge(venue) {
     const badge = document.createElement(venue.url ? "a" : "span");
-    badge.className = `${BADGE_CLASS} ${BADGE_CLASS}--${venue.rank.toLowerCase()}`;
+    badge.className = [
+      BADGE_CLASS,
+      `${BADGE_CLASS}--${venue.rank.toLowerCase()}`,
+      `${BADGE_CLASS}--${configuration.id}`,
+    ].join(" ");
     badge.textContent = `CCF ${venue.rank}`;
     badge.title = tooltip(venue);
     badge.setAttribute("aria-label", badge.title.replace(/\n/g, ". "));
@@ -197,11 +201,12 @@
 
   function placeBadge(card, badge) {
     const anchor = findAnchor(card);
-    if (anchor.matches("a")) {
-      anchor.parentElement?.insertBefore(badge, anchor);
-    } else {
-      anchor.insertBefore(badge, anchor.firstChild);
+    const titleLink = anchor.matches("a") ? anchor : anchor.querySelector("a");
+    if (titleLink) {
+      titleLink.insertAdjacentElement("afterend", badge);
+      return;
     }
+    anchor.append(badge);
   }
 
   function processCard(card) {

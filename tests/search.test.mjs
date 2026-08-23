@@ -8,6 +8,10 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataset = JSON.parse(await readFile(path.join(root, "data", "ccf-2026.json"), "utf8"));
 const source = await readFile(path.join(root, "extension", "shared", "search.js"), "utf8");
+const contentSource = await readFile(
+  path.join(root, "extension", "content", "content.js"),
+  "utf8",
+);
 const sandbox = { URL, module: { exports: {} } };
 sandbox.globalThis = sandbox;
 vm.runInNewContext(source, sandbox, { filename: "search.js" });
@@ -60,4 +64,44 @@ test("does not guess when a bare abbreviation is genuinely ambiguous", () => {
 test("matches an explicitly printed former full name", () => {
   const match = engine.matchVenueText(index, "Information Retrieval Journal, 2024");
   assert.equal(match.venue.name, "Discover Computing");
+});
+
+test("matches venue lines shown on Google Scholar profile rows", () => {
+  const cases = [
+    ["IEEE Transactions on Image Processing 34, 1427-1440", "TIP", "A"],
+    [
+      "IEEE Transactions on Circuits and Systems for Video Technology 34 (6), 4887-4898",
+      "TCSVT",
+      "B",
+    ],
+    ["Expert Systems with Applications 245, 123092", "ESWA", "C"],
+    ["IEEE Transactions on Information Forensics and Security", "TIFS", "A"],
+    [
+      "Proceedings of the AAAI Conference on Artificial Intelligence 39 (6), 6099-6107",
+      "AAAI",
+      "A",
+    ],
+  ];
+
+  for (const [text, abbreviation, rank] of cases) {
+    const match = engine.matchVenueText(index, text);
+    assert.equal(match?.venue.abbr, abbreviation, text);
+    assert.equal(match?.venue.rank, rank, text);
+  }
+});
+
+test("Google Scholar adapter covers profile rows and appends badges after titles", () => {
+  assert.match(contentSource, /tr\.gsc_a_tr/);
+  assert.match(contentSource, /\.gsc_a_t \.gs_gray/);
+  assert.match(contentSource, /a\.gsc_a_at/);
+  assert.match(contentSource, /insertAdjacentElement\("afterend", badge\)/);
+});
+
+test("does not confuse a title-cased venue word with an uppercase abbreviation", () => {
+  const match = engine.matchVenueText(
+    index,
+    "IEEE Transactions on Image Processing 34, 1427-1440",
+  );
+  assert.equal(match.venue.abbr, "TIP");
+  assert.notEqual(match.venue.abbr, "IMAGE");
 });

@@ -1,17 +1,21 @@
 # CCF Rank 2026
 
-[中文](README.md) · [Privacy](PRIVACY.md) · [Contributing](CONTRIBUTING.md)
+[中文](README.md) · [Changelog](CHANGELOG.md) · [Privacy](PRIVACY.md) · [Contributing](CONTRIBUTING.md)
 
 CCF Rank 2026 is an open-source Chrome and Firefox extension for looking up and annotating ranks from the China Computer Federation's seventh-edition recommended international conference and journal list (2026).
 
 ![CCF Rank 2026 popup](docs/images/popup.png)
+
+Google Scholar search results and profile publication tables are annotated directly at the end of each paper title:
+
+![Google Scholar profile annotations](docs/images/google-scholar-profile.png)
 
 ## Highlights
 
 - 681 entries extracted from the repository's official PDF: 386 conferences and 295 journals.
 - Search by abbreviation, full English name, or an explicitly documented former name.
 - Filter by CCF A/B/C, venue type, and all ten CCF subject categories.
-- Annotate DBLP, Google Scholar, Semantic Scholar, Connected Papers, Web of Science, ACM DL, IEEE Xplore, and Springer Link.
+- Annotate DBLP, Google Scholar search results and profile publication tables, Semantic Scholar, Connected Papers, Web of Science, ACM DL, IEEE Xplore, and Springer Link.
 - Prefer exact DBLP path matches; use conservative, entirely local text matching elsewhere.
 - Handle dynamically loaded results with a MutationObserver.
 - Share one Manifest V3 WebExtension codebase across Chrome and Firefox.
