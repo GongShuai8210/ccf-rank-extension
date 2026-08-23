@@ -27,7 +27,7 @@ Then run the extraction command documented in the README and commit both the ext
 
 Keep selectors scoped to the academic site and prefer explicit venue metadata over the full result card. CCF rank matching must remain local and conservative: an omitted badge is better than a confidently wrong rank. Add or extend a smoke fixture when changing URL or name matching.
 
-Google Scholar preprint-resolution changes must include fixtures for the citation-detail page and the “All versions” page. Keep requests same-origin, credential-free, visibility-gated, concurrency-limited, and memory-only; do not replace this workflow with title searches or a third-party ranking API.
+Google Scholar preprint or truncated-venue resolution changes must include fixtures for the citation-detail page and/or the “All versions” page. Keep requests same-origin, credential-free, visibility-gated, concurrency-limited, and memory-only; do not replace this workflow with title searches or a third-party ranking API. Any URL-derived venue rule must be demonstrably unique and must leave unknown values unmatched.
 
 ## Pull requests
 

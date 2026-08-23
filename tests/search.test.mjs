@@ -122,6 +122,7 @@ test("Google Scholar adapter covers profile rows and appends badges after titles
   assert.match(contentSource, /tr\.gsc_a_tr/);
   assert.match(contentSource, /\.gsc_a_t \.gs_gray/);
   assert.match(contentSource, /a\.gsc_a_at/);
+  assert.match(contentSource, /hasTruncatedVenueMetadata/);
   assert.match(contentSource, /insertAdjacentElement\("afterend", badge\)/);
 });
 
@@ -138,6 +139,12 @@ test("recognizes common English and Chinese preprint metadata", () => {
   assert.equal(scholar.isPreprintText("arXiv preprint arXiv:2508.05987"), true);
   assert.equal(scholar.isPreprintText("bioRxiv 2026.01.02.12345"), true);
   assert.equal(scholar.isPreprintText("OpenReview preprint"), true);
+  assert.equal(
+    scholar.isPreprintText(
+      "Forty-first International Conference - openreview.net",
+    ),
+    false,
+  );
   assert.equal(scholar.isPreprintText("尚未正式发表的预印本"), true);
   assert.equal(scholar.isPreprintText("IEEE Transactions on Software Engineering"), false);
 });
@@ -159,15 +166,80 @@ function fakeVersionDocument(metadataValues) {
   return {
     querySelectorAll(selector) {
       assert.equal(selector, ".gs_r, .gs_scl");
-      return metadataValues.map((textContent) => ({
-        querySelector(innerSelector) {
-          assert.equal(innerSelector, ".gs_a");
-          return { textContent };
-        },
-      }));
+      return metadataValues.map((entry) => {
+        const value =
+          typeof entry === "string" ? { metadata: entry, urls: [] } : entry;
+        return {
+          querySelector(innerSelector) {
+            assert.equal(innerSelector, ".gs_a");
+            return { textContent: value.metadata };
+          },
+          querySelectorAll(innerSelector) {
+            assert.equal(innerSelector, "a[href]");
+            return (value.urls || []).map((url) => ({
+              getAttribute(attribute) {
+                assert.equal(attribute, "href");
+                return url;
+              },
+            }));
+          },
+        };
+      });
     },
   };
 }
+
+test("does not confuse truncated TMLR metadata with the Machine Learning journal", () => {
+  const truncated =
+    "S Diao, Z Huang, R Xu - … on Machine Learning …, 2023 - experts.illinois.edu";
+  const broadMatch = engine.matchVenueText(index, truncated);
+  assert.equal(broadMatch.venue.name, "Machine Learning");
+  assert.equal(scholar.matchVenueMetadata(index, engine, truncated), null);
+
+  const fullTmlr =
+    "S Diao, Z Huang, R Xu - Transactions on Machine Learning Research, 2023 - openreview.net";
+  assert.equal(scholar.matchVenueMetadata(index, engine, fullTmlr), null);
+
+  const actualJournal =
+    "A Author - Machine Learning 114 (2), 2025 - link.springer.com";
+  assert.equal(
+    scholar.matchVenueMetadata(index, engine, actualJournal).venue.name,
+    "Machine Learning",
+  );
+});
+
+test("uses conservative publication URLs for truncated ICML and TASLP records", () => {
+  const icml2022 = scholar.matchTrustedVenueUrl(
+    index,
+    engine,
+    "https://proceedings.mlr.press/v162/sun22e.html",
+  );
+  assert.equal(icml2022.venue.abbr, "ICML");
+  assert.equal(icml2022.venue.rank, "A");
+
+  const icml2024 = scholar.matchTrustedVenueUrl(
+    index,
+    engine,
+    "https://raw.githubusercontent.com/mlresearch/v235/main/assets/sun24j/sun24j.pdf",
+  );
+  assert.equal(icml2024.venue.abbr, "ICML");
+
+  const taslp = scholar.matchTrustedVenueUrl(
+    index,
+    engine,
+    "https://dl.acm.org/doi/abs/10.1109/TASLP.2024.3407519",
+  );
+  assert.equal(taslp.venue.abbr, "TASLP");
+  assert.equal(taslp.venue.rank, "B");
+  assert.equal(
+    scholar.matchTrustedVenueUrl(
+      index,
+      engine,
+      "https://proceedings.mlr.press/v999/unknown.html",
+    ),
+    null,
+  );
+});
 
 test("resolves the supplied arXiv Scholar cluster to its ECAI CCF rank", () => {
   const result = scholar.analyzeVersionsDocument(
@@ -190,6 +262,7 @@ test("distinguishes a true preprint from a published non-CCF version", () => {
     fakeVersionDocument([
       "A Author - arXiv preprint arXiv:2601.00001, 2026 - arxiv.org",
       "A Author - bioRxiv 2026.01.02.12345, 2026 - biorxiv.org",
+      "A Author - personal.example.edu",
     ]),
     index,
     engine,
@@ -205,4 +278,72 @@ test("distinguishes a true preprint from a published non-CCF version", () => {
     engine,
   );
   assert.equal(published.kind, "published-unranked");
+});
+
+test("classifies the live TMLR cluster as published but outside the CCF list", () => {
+  const result = scholar.analyzeVersionsDocument(
+    fakeVersionDocument([
+      {
+        metadata:
+          "S Diao, Z Huang, R Xu - arXiv preprint arXiv:2201.08531, 2022 - arxiv.org",
+        urls: ["https://arxiv.org/abs/2201.08531"],
+      },
+      {
+        metadata: "S Diao, Z Huang, R Xu, X Li - shizhediao.github.io",
+        urls: ["https://shizhediao.github.io/docs/bdpl_v2.pdf"],
+      },
+      {
+        metadata:
+          "S Diao, Z Huang, R Xu - … on Machine Learning … - openreview.net",
+        urls: ["https://openreview.net/forum?id=IvsGP7xRvm"],
+      },
+      {
+        metadata:
+          "S Diao, Z Huang, R Xu - … on Machine Learning …, 2023 - experts.illinois.edu",
+        urls: [
+          "https://experts.illinois.edu/en/publications/black-box-prompt-learning-for-pre-trained-language-models/",
+        ],
+      },
+    ]),
+    index,
+    engine,
+  );
+  assert.equal(result.kind, "published-unranked");
+});
+
+test("resolves the live ICML 2024 and TASLP version links", () => {
+  const icml = scholar.analyzeVersionsDocument(
+    fakeVersionDocument([
+      {
+        metadata:
+          "J Sun, Z Xu, H Yin - arXiv preprint arXiv:2310.01467, 2023 - arxiv.org",
+        urls: ["https://arxiv.org/abs/2310.01467"],
+      },
+      {
+        metadata:
+          "J Sun, Z Xu, H Yin - International …, 2024 - proceedings.mlr.press",
+        urls: ["https://proceedings.mlr.press/v235/sun24j.html"],
+      },
+    ]),
+    index,
+    engine,
+  );
+  assert.equal(icml.kind, "ccf");
+  assert.equal(icml.match.venue.abbr, "ICML");
+  assert.equal(icml.match.venue.rank, "A");
+
+  const taslp = scholar.analyzeVersionsDocument(
+    fakeVersionDocument([
+      {
+        metadata:
+          "Y Zheng, Z Tan, P Li - IEEE/ACM Transactions on Audio, Speech …, 2024 - dl.acm.org",
+        urls: ["https://dl.acm.org/doi/abs/10.1109/TASLP.2024.3407519"],
+      },
+    ]),
+    index,
+    engine,
+  );
+  assert.equal(taslp.kind, "ccf");
+  assert.equal(taslp.match.venue.abbr, "TASLP");
+  assert.equal(taslp.match.venue.rank, "B");
 });

@@ -14,6 +14,10 @@ Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接�
 
 ![Google Scholar 预印本与正式发表版本识别](docs/images/preprint-resolution.png)
 
+Google Scholar 也经常用省略号截断来源名称，例如 `… Conference on Machine …` 或 `… on Machine Learning …`。扩展不会再把这些残缺短语直接当作刊名，而是结合“所有版本”中的正式链接进行保守识别：
+
+![Google Scholar 截断来源名称的修正结果](docs/images/scholar-truncated-venues.png)
+
 ## 为什么重新实现
 
 不少现有 CCF Rank 扩展仍使用 2019 或 2022 版数据，或者依赖远程接口。这个项目从零实现，直接以仓库中的正式版 PDF 为唯一基准生成结构化数据，并对行号、总数、分类、等级和 PDF 哈希执行自动校验。
@@ -33,6 +37,7 @@ Google Scholar 个人主页和搜索结果会在每篇论文标题末尾直接�
 - 按 A/B/C、会议/期刊和学科分类筛选；
 - 在学术搜索结果和 Google Scholar 个人主页论文列表中，把彩色 `CCF A/B/C` 标记直接显示在标题末尾；
 - 对 Google Scholar 中显示为 arXiv 等预印本的可见论文，按需检查“所有版本”：找到正式 CCF 版本时显示等级，只有预印本时显示 `Preprint`，找到正式但未收录于 CCF 的版本时不显示标签；
+- 对 Scholar 用省略号截断的来源字段，不使用残缺短语猜等级；仅在完整版本文本、明确的 PMLR 卷号、会议官方域名或唯一 DOI 刊名缩写能够验证时显示标签；
 - DBLP 及其常用镜像已支持：优先使用会议/期刊 URL 路径精确匹配，再以页面来源文本回退；
 - 预印本版本检查限制为最多 2 个并发请求并使用页面级内存缓存，不批量扫描视口外的论文；
 - MutationObserver 支持无限滚动和单页应用动态加载；
@@ -78,7 +83,7 @@ npm run check
 
 - Chrome：`dist/chrome/`
 - Firefox：`dist/firefox/`
-- 发布包：`artifacts/ccf-rank-1.2.0-{chrome,firefox}.zip`
+- 发布包：`artifacts/ccf-rank-1.2.1-{chrome,firefox}.zip`
 
 ## 更新 CCF 数据
 
@@ -115,7 +120,7 @@ docs/                  截图和数据维护文档
 
 扩展只在 manifest 明确列出的学术网站读取页面中已显示的会议/期刊文本，并在当前页面添加等级标签。CCF 数据与等级匹配全部在本地完成，不使用后台、统计分析或广告，也不申请 `storage`、`tabs`、`cookies` 等额外权限。
 
-唯一的自动网络读取是 Google Scholar 预印本版本检查：扩展针对可见的预印本条目，向当前 Scholar 域名公开读取论文详情页和“所有版本”页；请求不携带浏览器凭据，不会发往本项目或第三方排名服务。Firefox 按其数据分类规则将这类 URL 请求披露为 `browsingActivity`；本项目不会接收任何浏览活动。完整边界与普通网络元数据说明见 [PRIVACY.md](PRIVACY.md)。
+唯一的自动网络读取是 Google Scholar 版本检查：扩展针对可见的预印本条目或来源名称被 Scholar 截断的条目，向当前 Scholar 域名公开读取论文详情页和“所有版本”页；请求不携带浏览器凭据，不会发往本项目或第三方排名服务。Firefox 按其数据分类规则将这类 URL 请求披露为 `browsingActivity`；本项目不会接收任何浏览活动。完整边界与普通网络元数据说明见 [PRIVACY.md](PRIVACY.md)。
 
 ## 开发与验证
 
@@ -126,7 +131,7 @@ npm run lint:firefox # Mozilla 官方 web-ext 严格校验
 npm run check        # 完整校验、构建和打包
 ```
 
-当前版本已在 Google Chrome 151 和 Firefox 154 上完成实际加载测试，并用浏览器级回归用例验证了“arXiv → ECAI → CCF B”、真实预印本与正式非 CCF 版本三种情况。CI 会在每次 push/PR 时执行数据、单元测试、Mozilla lint、构建与打包校验。
+当前版本已在 Google Chrome 151 和 Firefox 154 上完成实际加载测试。浏览器级回归既覆盖“arXiv → ECAI → CCF B”、真实预印本和正式非 CCF 版本，也覆盖本次报告的 ICML 2022、TMLR 2023、ICML 2024 与 TASLP 2024 截断来源案例。CI 会在每次 push/PR 时执行数据、单元测试、Mozilla lint、构建与打包校验。
 
 ## 许可证与声明
 

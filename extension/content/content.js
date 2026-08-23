@@ -158,6 +158,13 @@
       const match = engine.matchUrl(index, url);
       if (match) return match;
     }
+    if (configuration.id === "google-scholar" && scholar) {
+      for (const url of urls) {
+        const match = scholar.matchTrustedVenueUrl(index, engine, url);
+        if (match) return match;
+      }
+      return scholar.matchVenueMetadata(index, engine, text);
+    }
     return engine.matchVenueText(index, text);
   }
 
@@ -325,14 +332,22 @@
     return scholarVersionCache.get(clusterUrl);
   }
 
-  async function resolveScholarPreprint(card) {
+  async function resolveScholarVersions(card, assumePreprint) {
     let clusterUrl = clusterUrlForCard(card);
     if (!clusterUrl) {
       const detailUrl = detailUrlForCard(card);
-      if (!detailUrl) return { kind: "preprint", checkedVersions: 1 };
+      if (!detailUrl) {
+        return assumePreprint
+          ? { kind: "preprint", checkedVersions: 1 }
+          : { kind: "unavailable", checkedVersions: 0 };
+      }
       clusterUrl = await clusterFromDetail(detailUrl);
     }
-    if (!clusterUrl) return { kind: "preprint", checkedVersions: 1 };
+    if (!clusterUrl) {
+      return assumePreprint
+        ? { kind: "preprint", checkedVersions: 1 }
+        : { kind: "unavailable", checkedVersions: 0 };
+    }
     return resolutionFromCluster(clusterUrl);
   }
 
@@ -345,7 +360,7 @@
   async function applyScholarResolution(card, candidate) {
     let result;
     try {
-      result = await resolveScholarPreprint(card);
+      result = await resolveScholarVersions(card, candidate.preprint);
     } catch (_error) {
       result = { kind: "unavailable" };
     }
@@ -356,22 +371,21 @@
     const badge = card.querySelector(
       `:scope .${BADGE_CLASS}[data-ccf-status="preprint"]`,
     );
-    if (!badge) return;
-
-    badge.removeAttribute("aria-busy");
+    badge?.removeAttribute("aria-busy");
     if (result.kind === "ccf") {
       const replacement = createBadge(result.match.venue, {
         resolvedVia: "scholar-versions",
         note: `通过 Google 学术“所有版本”识别（检查 ${result.checkedVersions} 个版本）`,
       });
-      badge.replaceWith(replacement);
+      if (badge) badge.replaceWith(replacement);
+      else placeBadge(card, replacement);
       return;
     }
     if (result.kind === "published-unranked") {
-      badge.remove();
+      badge?.remove();
       return;
     }
-    if (result.kind === "preprint") {
+    if (result.kind === "preprint" && badge) {
       setBadgeTooltip(
         badge,
         `Preprint · 已检查 Google 学术中的 ${result.checkedVersions || 1} 个版本\n未识别到正式 CCF 会议或期刊版本`,
@@ -379,10 +393,12 @@
       badge.dataset.ccfPreprintVerified = "true";
       return;
     }
-    setBadgeTooltip(
-      badge,
-      "Preprint · Google 学术当前显示为预印本\n暂时无法检查其他版本",
-    );
+    if (badge) {
+      setBadgeTooltip(
+        badge,
+        "Preprint · Google 学术当前显示为预印本\n暂时无法检查其他版本",
+      );
+    }
   }
 
   const scholarVisibilityObserver =
@@ -402,11 +418,11 @@
         )
       : null;
 
-  function scheduleScholarResolution(card, fingerprint) {
+  function scheduleScholarResolution(card, candidate) {
     if (!scholar || configuration.id !== "google-scholar") return;
-    scholarCandidates.set(card, { fingerprint });
+    scholarCandidates.set(card, candidate);
     if (scholarVisibilityObserver) scholarVisibilityObserver.observe(card);
-    else void applyScholarResolution(card, { fingerprint });
+    else void applyScholarResolution(card, candidate);
   }
 
   function processCard(card) {
@@ -418,22 +434,29 @@
     const priorBadge = card.querySelector(`:scope .${BADGE_CLASS}`);
     const match = findMatch(card, text, urls);
     if (!match) {
-      if (
-        configuration.id === "google-scholar" &&
-        scholar?.isPreprintText(text)
-      ) {
+      const isScholar = configuration.id === "google-scholar" && scholar;
+      const isPreprint = Boolean(isScholar && scholar.isPreprintText(text));
+      const hasVersionTarget = Boolean(
+        isScholar && (clusterUrlForCard(card) || detailUrlForCard(card)),
+      );
+      const shouldResolve = Boolean(
+        hasVersionTarget &&
+          (isPreprint || scholar.hasTruncatedVenueMetadata(text)),
+      );
+      if (isPreprint) {
         let preprintBadge = priorBadge;
         if (preprintBadge?.dataset.ccfStatus !== "preprint") {
           priorBadge?.remove();
           preprintBadge = createPreprintBadge();
           placeBadge(card, preprintBadge);
         }
-        processed.set(card, fingerprint);
-        scheduleScholarResolution(card, fingerprint);
-        return;
+      } else {
+        priorBadge?.remove();
       }
-      priorBadge?.remove();
       processed.set(card, fingerprint);
+      if (shouldResolve) {
+        scheduleScholarResolution(card, { fingerprint, preprint: isPreprint });
+      }
       return;
     }
     if (priorBadge?.dataset.ccfVenueId === match.venue.id) {
@@ -441,7 +464,14 @@
       return;
     }
     priorBadge?.remove();
-    placeBadge(card, createBadge(match.venue));
+    const badgeOptions =
+      match.reason === "trusted-url"
+        ? {
+            resolvedVia: "publication-url",
+            note: "通过论文链接中的正式出版信息识别",
+          }
+        : {};
+    placeBadge(card, createBadge(match.venue, badgeOptions));
     processed.set(card, fingerprint);
   }
 

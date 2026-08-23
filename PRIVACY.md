@@ -10,17 +10,17 @@ On the academic websites explicitly listed in `manifest.json`, the content scrip
 
 The toolbar popup reads the query typed into its own search field. The query is matched against the bundled dataset in memory and is not persisted or transmitted.
 
-## Google Scholar preprint-version checks
+## Google Scholar venue-version checks
 
-When a visible Google Scholar result is labelled as a preprint and has no direct CCF match, the extension may make same-origin public `GET` requests to Google Scholar to inspect that paper's citation-detail page and its “All versions” page. This allows a row that currently says arXiv to be annotated using a formally published conference or journal version.
+When a visible Google Scholar result is labelled as a preprint, or when Scholar has truncated its venue name with an ellipsis, the extension may make same-origin public `GET` requests to Google Scholar to inspect that paper's citation-detail page and its “All versions” page. This allows a row that currently says arXiv, `… Conference on Machine …`, or another incomplete venue to be annotated only when a formally published conference or journal version can be verified.
 
 - Requests stay on the Google Scholar regional origin already open in the tab.
 - The extension derives the citation and version URLs from links Google Scholar already placed on the page. It does not submit the paper title or a new search query to a separate ranking service.
-- Requests omit browser credentials and the referring page, are limited to two concurrent requests, and are made only for visible or near-visible preprint rows.
+- Requests omit browser credentials and the referring page, are limited to two concurrent requests, and are made only for visible or near-visible preprint or truncated-venue rows.
 - Results are cached only in memory for the lifetime of that content script and are never written to persistent storage.
 - As with any web request, Google receives ordinary network information such as the requesting IP address. The developer of CCF Rank PLus does not receive these requests or their contents.
 
-If the version check is unavailable, the extension leaves the neutral `Preprint` label in place and does not guess a CCF rank.
+If the version check is unavailable, the extension leaves a currently displayed neutral `Preprint` label in place but does not guess a CCF rank. A non-preprint row with an unresolved truncated venue remains unlabelled.
 
 ## What the extension does not do
 
@@ -31,7 +31,7 @@ If the version check is unavailable, the extension leaves the neutral `Preprint`
 - No remotely hosted JavaScript or executable code.
 - No use of `chrome.storage`, local storage, or a backend database.
 
-Outside the limited Google Scholar preprint-version checks described above, network navigation initiated by the extension occurs only when the user explicitly clicks a source link or a venue's published URL.
+Outside the limited Google Scholar venue-version checks described above, network navigation initiated by the extension occurs only when the user explicitly clicks a source link or a venue's published URL.
 
 ## Permissions
 

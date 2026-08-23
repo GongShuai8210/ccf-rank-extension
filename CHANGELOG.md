@@ -2,6 +2,15 @@
 
 All notable changes to CCF Rank PLus are documented here.
 
+## 1.2.1 — 2026-08-23
+
+- Fix a false `CCF B` badge when Scholar truncated “Transactions on Machine Learning Research” to `… on Machine Learning …` and the generic phrase matched the separate CCF B journal *Machine Learning*.
+- Parse only Scholar's venue fragment and reject name-based matches when that fragment contains an ellipsis.
+- Distinguish formal OpenReview publications from explicit preprints instead of treating every OpenReview record as a preprint.
+- Recognize conservatively verifiable venue links, including known ICML PMLR volumes, official ICML/NeurIPS/ICLR hosts, CVF publication paths, and unique IEEE DOI abbreviations such as TASLP.
+- Check “All versions” for visible records whose venue metadata is truncated, not only records currently labelled as preprints.
+- Add browser regression coverage for the reported ICML 2022, TMLR 2023, ICML 2024, and TASLP 2024 results.
+
 ## 1.2.0 — 2026-08-23
 
 - Rename the extension to the exact product name `CCF Rank PLus`.

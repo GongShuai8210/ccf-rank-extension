@@ -14,6 +14,10 @@ When Google Scholar currently lists a paper only as arXiv, the extension lazily 
 
 ![Google Scholar preprint and published-version resolution](docs/images/preprint-resolution.png)
 
+Scholar also truncates venue names, for example `… Conference on Machine …` and `… on Machine Learning …`. The extension no longer treats such incomplete phrases as venue names; it resolves them only when formal version links provide conservative evidence:
+
+![Corrected Google Scholar truncated-venue results](docs/images/scholar-truncated-venues.png)
+
 ## Highlights
 
 - 681 entries extracted from the repository's official PDF: 386 conferences and 295 journals.
@@ -22,6 +26,7 @@ When Google Scholar currently lists a paper only as arXiv, the extension lazily 
 - Annotate DBLP, Google Scholar search results and profile publication tables, Semantic Scholar, Connected Papers, Web of Science, ACM DL, IEEE Xplore, and Springer Link.
 - Support DBLP and its common mirrors with exact conference/journal path matching plus a metadata-text fallback.
 - For a visible Google Scholar preprint, inspect “All versions” on demand: show its formal CCF rank when found, show `Preprint` if every usable version is a preprint, and show no badge for a formal venue outside the CCF list.
+- Reject name-based matches from ellipsized Scholar venue fragments; accept a truncated record only when complete version metadata, a known PMLR volume, an official venue host, or a unique DOI venue abbreviation verifies it.
 - Limit Scholar version checks to two concurrent same-origin requests and cache results in page memory; off-screen publications are not scanned in bulk.
 - Use conservative local venue-name matching on all supported sites.
 - Handle dynamically loaded results with a MutationObserver.
@@ -65,7 +70,7 @@ The extractor reads coordinate-bounded table cells, validates every section's ro
 
 The extension reads venue text already displayed on the academic sites named in its manifest and adds a rank badge to the current page. The CCF dataset and rank matching remain local; there is no backend, analytics, or advertising, and the extension requests no storage, tabs, or cookies permissions.
 
-The only automatic network reads are limited Google Scholar preprint-version checks. For a visible preprint row, the extension fetches the public citation-detail and “All versions” pages from the Scholar origin already open in the tab, without browser credentials or a referrer. Nothing is sent to this project or a separate ranking service. Firefox discloses these URL requests as `browsingActivity` under Mozilla's data taxonomy; this project receives no browsing activity. See [PRIVACY.md](PRIVACY.md) for the complete boundary and ordinary network-metadata disclosure.
+The only automatic network reads are limited Google Scholar version checks. For a visible preprint row or a row whose venue name Scholar has truncated, the extension fetches the public citation-detail and “All versions” pages from the Scholar origin already open in the tab, without browser credentials or a referrer. Nothing is sent to this project or a separate ranking service. Firefox discloses these URL requests as `browsingActivity` under Mozilla's data taxonomy; this project receives no browsing activity. See [PRIVACY.md](PRIVACY.md) for the complete boundary and ordinary network-metadata disclosure.
 
 ## Verification
 
@@ -76,7 +81,7 @@ npm run lint:firefox
 npm run check
 ```
 
-The current release has been loaded in Google Chrome 151 and Firefox 154. A browser-level regression covers a supplied arXiv record that resolves through ECAI to CCF B, a true preprint, and a formal non-CCF publication. CI repeats the data, unit, Mozilla lint, build, and packaging checks for every push and pull request.
+The current release has been loaded in Google Chrome 151 and Firefox 154. Browser-level regressions cover the supplied arXiv record that resolves through ECAI to CCF B, a true preprint, a formal non-CCF publication, and the reported truncated ICML 2022, TMLR 2023, ICML 2024, and TASLP 2024 records. CI repeats the data, unit, Mozilla lint, build, and packaging checks for every push and pull request.
 
 ## License and disclaimer
 
