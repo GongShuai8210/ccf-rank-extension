@@ -1,0 +1,78 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "version": "1.0.0",
+  "homepage_url": "https://github.com/GongShuai8210/ccf-rank-extension",
+  "default_locale": "zh_CN",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "64": "icons/icon-64.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "CCF Rank 2026",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://dblp.org/*",
+        "https://dblp.uni-trier.de/*",
+        "https://dblp2.uni-trier.de/*",
+        "https://dblp.dagstuhl.de/*",
+        "https://scholar.google.com/*",
+        "https://scholar.google.com.hk/*",
+        "https://scholar.google.com.tw/*",
+        "https://scholar.google.com.sg/*",
+        "https://scholar.google.com.au/*",
+        "https://scholar.google.com.br/*",
+        "https://scholar.google.com.mx/*",
+        "https://scholar.google.com.tr/*",
+        "https://scholar.google.co.uk/*",
+        "https://scholar.google.co.jp/*",
+        "https://scholar.google.co.kr/*",
+        "https://scholar.google.co.in/*",
+        "https://scholar.google.ca/*",
+        "https://scholar.google.de/*",
+        "https://scholar.google.fr/*",
+        "https://scholar.google.it/*",
+        "https://scholar.google.es/*",
+        "https://scholar.google.nl/*",
+        "https://scholar.google.se/*",
+        "https://scholar.google.pl/*",
+        "https://scholar.google.ru/*",
+        "https://www.semanticscholar.org/*",
+        "https://www.connectedpapers.com/*",
+        "https://www.webofscience.com/*",
+        "https://webofscience.clarivate.cn/*",
+        "https://dl.acm.org/*",
+        "https://ieeexplore.ieee.org/*",
+        "https://link.springer.com/*"
+      ],
+      "css": ["content/content.css"],
+      "js": [
+        "data/ccf-2026.js",
+        "shared/search.js",
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ccf-rank-2026@open-source.local",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

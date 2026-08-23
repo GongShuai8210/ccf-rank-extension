@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a lookup, annotation, or browser compatibility problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Popup lookup
+        - DBLP annotation
+        - Google Scholar annotation
+        - Semantic Scholar annotation
+        - Other site annotation
+        - Build or packaging
+        - Data
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Firefox 154 or Chrome 140
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and reproduction steps
+      description: Remove personal information before attaching HTML or screenshots.
+    validations:
+      required: true

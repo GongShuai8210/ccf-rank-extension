@@ -1,0 +1,11 @@
+node_modules/
+dist/
+artifacts/
+coverage/
+.DS_Store
+Thumbs.db
+tmp/
+*.log
+__pycache__/
+*.py[cod]
+web-ext-artifacts/

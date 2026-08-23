@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CCF Rank 2026</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script defer src="../data/ccf-2026.js"></script>
+    <script defer src="../shared/search.js"></script>
+    <script defer src="popup.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="brand-row">
+        <img class="brand-icon" src="../icons/icon-64.png" alt="" />
+        <div class="brand-copy">
+          <div class="eyebrow">2026 · CCF 第七版</div>
+          <h1>CCF Rank</h1>
+        </div>
+        <span class="local-badge" id="localBadge">本地查询</span>
+      </div>
+      <label class="search-box" for="searchInput">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m21 21-4.7-4.7m2.2-5.05a7.25 7.25 0 1 1-14.5 0 7.25 7.25 0 0 1 14.5 0Z" />
+        </svg>
+        <input
+          id="searchInput"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="输入简称或全称，例如 CVPR、TPAMI"
+          aria-label="搜索 CCF 会议或期刊"
+        />
+        <kbd>/</kbd>
+      </label>
+    </header>
+
+    <main>
+      <section class="filters" aria-label="筛选条件">
+        <div class="rank-filter" id="rankFilter" role="group" aria-label="CCF 等级">
+          <button class="filter-chip is-active" type="button" data-rank="all" aria-pressed="true">全部</button>
+          <button class="filter-chip rank-a" type="button" data-rank="A" aria-pressed="false">A</button>
+          <button class="filter-chip rank-b" type="button" data-rank="B" aria-pressed="false">B</button>
+          <button class="filter-chip rank-c" type="button" data-rank="C" aria-pressed="false">C</button>
+        </div>
+        <div class="select-row">
+          <label>
+            <span class="sr-only">类型</span>
+            <select id="typeFilter" aria-label="类型">
+              <option value="all">会议 + 期刊</option>
+              <option value="conference">仅会议</option>
+              <option value="journal">仅期刊</option>
+            </select>
+          </label>
+          <label class="category-select">
+            <span class="sr-only">学科分类</span>
+            <select id="categoryFilter" aria-label="学科分类">
+              <option value="all">全部学科</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <div class="result-heading">
+        <span id="resultStatus">681 条会议与期刊</span>
+        <button id="clearButton" class="text-button" type="button" hidden>清空</button>
+      </div>
+      <section id="results" class="results" aria-live="polite"></section>
+    </main>
+
+    <footer>
+      <span id="privacyText">不收集数据 · 全程本地匹配</span>
+      <a
+        id="sourceLink"
+        href="https://www.ccf.org.cn/Academic_Evaluation/By_category/2026-03-05/861526.shtml"
+        target="_blank"
+        rel="noopener noreferrer"
+      >数据来源</a>
+    </footer>
+  </body>
+</html>

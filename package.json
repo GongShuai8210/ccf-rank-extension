@@ -1,0 +1,31 @@
+{
+  "name": "ccf-rank-extension",
+  "version": "1.0.0",
+  "description": "A privacy-first CCF venue rank lookup and annotation extension for Chrome and Firefox.",
+  "homepage": "https://github.com/GongShuai8210/ccf-rank-extension#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GongShuai8210/ccf-rank-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GongShuai8210/ccf-rank-extension/issues"
+  },
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "data:build": "node scripts/build-data.mjs",
+    "data:check": "node scripts/validate-data.mjs",
+    "build": "node scripts/build.mjs",
+    "lint:firefox": "npm run build && npx --yes --package web-ext@10.6.0 web-ext lint --source-dir dist/firefox --warnings-as-errors --boring",
+    "package": "node scripts/package.mjs",
+    "test": "node --test",
+    "check": "npm run data:check && npm test && npm run lint:firefox && npm run package"
+  },
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
+}
