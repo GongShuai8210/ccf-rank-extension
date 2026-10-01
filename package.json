@@ -26,6 +26,6 @@
     "check": "npm run data:check && npm test && npm run lint:firefox && npm run package"
   },
   "devDependencies": {
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.2"
   }
 }
